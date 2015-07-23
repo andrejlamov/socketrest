@@ -5,9 +5,15 @@ app = flask.Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 app.debug = True
 socketio = SocketIO(app)
-client = app.test_client()
 data = 0
 data2 = 0
+
+def client(url):
+    endpoints = app.view_functions
+    url_map = app.url_map
+    urls = url_map.bind('localhost', '/')
+    (name, _) = urls.match(url)
+    return endpoints[name]()
 
 @app.route('/')
 def index():
@@ -44,7 +50,7 @@ def get2():
     return str(data2)
 
 def call_api(api):
-    return {'room': api, 'data': client.get(api).data }
+    return {'room': api, 'data': client(api) }
 
 
 def push_api(api):
